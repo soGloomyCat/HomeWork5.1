@@ -10,50 +10,65 @@ public class AlarmSignal : MonoBehaviour
     [SerializeField] private float _duration;
 
     private float _requiredValue;
+    private float _minValue;
+    private float _maxValue;
+    private float _tempVolumeValue;
+    private bool _inHouse;
 
     private void Start()
     {
-        if (_duration < 0.1f)
+        _alarmSignal.volume = 0;
+        _minValue = 0.1f;
+        _maxValue = 0.7f;
+        _tempVolumeValue = _duration * Time.deltaTime;
+
+        if (_duration < _minValue)
         {
             _duration = 0.1f;
         }
-        else if (_duration > 0.7f)
+        else if (_duration > _maxValue)
         {
             _duration = 0.7f;
         }
     }
 
+    private void FixedUpdate()
+    {
+        if(_inHouse == false)
+            StartCoroutine("SoundReduction");
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        _alarmSignal.volume = 0;
-
-        if (collision.TryGetComponent<Thief>(out Thief thief))
-        {
-            _alarmSignal.Play();
-        }
+        _inHouse = true;
+        _alarmSignal.Play();
     }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        float tempVolumeValue = _duration * Time.deltaTime;
-
-        if (_alarmSignal.volume == 1)
-        {
-            _requiredValue = 0;
-        }
-        else if (_alarmSignal.volume == 0)
-        {
-            _requiredValue = 1;
-        }
-
-        _alarmSignal.volume = Mathf.MoveTowards(_alarmSignal.volume, _requiredValue, tempVolumeValue);
+        StartCoroutine("SoundReduction");
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.TryGetComponent<Thief>(out Thief thief))
+        _inHouse = false;
+    }
+
+    private IEnumerator SoundReduction()
+    {
+        if (_inHouse)
         {
-            _alarmSignal.Stop();
+            _requiredValue = 1;
+
+            _alarmSignal.volume = Mathf.MoveTowards(_alarmSignal.volume, _requiredValue, _tempVolumeValue);
         }
+        else
+        {
+            _requiredValue = 0;
+
+            _alarmSignal.volume = Mathf.MoveTowards(_alarmSignal.volume, _requiredValue, _tempVolumeValue);
+        }
+        
+        yield return null;
     }
 }
