@@ -23,7 +23,9 @@ public class AlarmSignal : MonoBehaviour
     private void FixedUpdate()
     {
         if(_inHouse == false)
-            StartCoroutine(ChangeSoundVolume());
+            _coroutine = StartCoroutine(ChangeSoundVolume());
+        if (_alarmSignal.volume == _requiredValue)
+            StopCoroutine(_coroutine);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -34,7 +36,6 @@ public class AlarmSignal : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        while (_alarmSignal.volume != _requiredValue)
             _coroutine = StartCoroutine(ChangeSoundVolume());
     }
 
