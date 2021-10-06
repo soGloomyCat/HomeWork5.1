@@ -60,8 +60,7 @@ public class AlarmSignal : MonoBehaviour
         while (_alarmSignal.volume != _requiredValue)
         {
             _alarmSignal.volume = Mathf.MoveTowards(_alarmSignal.volume, _requiredValue, _tempVolumeValue);
+            yield return null;
         }
-
-        yield return null;
     }
 }
