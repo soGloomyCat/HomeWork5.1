@@ -19,31 +19,19 @@ public class AlarmSignal : MonoBehaviour
         _alarmSignal.volume = 0;
         _tempVolumeValue = _duration * Time.deltaTime;
     }
-
-    private void FixedUpdate()
-    {
-        if(_inHouse == false)
-            _coroutine = StartCoroutine(ChangeSoundVolume());
-        if (_alarmSignal.volume == _requiredValue)
-            StopCoroutine(_coroutine);
-    }
-
+    
     private void OnTriggerEnter2D(Collider2D collision)
     {
         _inHouse = true;
         _alarmSignal.Play();
-    }
-
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-            _coroutine = StartCoroutine(ChangeSoundVolume());
+        _coroutine = StartCoroutine(ChangeSoundVolume());
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        
         StopCoroutine(_coroutine);
         _inHouse = false;
+        _coroutine = StartCoroutine(ChangeSoundVolume());
     }
 
     private IEnumerator ChangeSoundVolume()
@@ -59,7 +47,7 @@ public class AlarmSignal : MonoBehaviour
 
         while (_alarmSignal.volume != _requiredValue)
         {
-            _alarmSignal.volume = Mathf.MoveTowards(_alarmSignal.volume, _requiredValue, _tempVolumeValue);
+            _alarmSignal.volume = Mathf.MoveTowards(_alarmSignal.volume, _requiredValue, _tempVolumeValue * Time.deltaTime);
             yield return null;
         }
     }
